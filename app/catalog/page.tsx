@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase'
 import Header from '@/components/store/Header'
 import Footer from '@/components/store/Footer'
 import CatalogClient from '@/components/store/CatalogClient'
+import { resolveParams, applyFilters, loadVisibleLite } from '@/lib/catalogFilters'
+import { promoLabel } from '@/lib/promos'
 
 const SECTION_NAMES: Record<string, string> = {
   lingerie: 'Бельё',
@@ -32,10 +34,12 @@ export default async function CatalogPage({ searchParams }: { searchParams: SP }
 
   const { data: categories } = await supabase.from('categories').select('*').order('name')
 
-  // Определяем раздел: либо из URL (?section=), либо по выбранной категории
-  let effectiveSection = searchParams.section
-  if (!effectiveSection && catSlug) {
-    const cat = (categories || []).find(c => c.slug === catSlug)
+  const resolved = resolveParams(searchParams, (categories || []) as any)
+
+  // Определяем раздел: либо из URL (?section=, в т.ч. ?cat=swim), либо по выбранной категории
+  let effectiveSection = resolved.section
+  if (!effectiveSection && resolved.catId) {
+    const cat = (categories || []).find(c => c.id === resolved.catId)
     if (cat && (cat as any).section) effectiveSection = (cat as any).section
   }
 
@@ -50,34 +54,15 @@ export default async function CatalogPage({ searchParams }: { searchParams: SP }
 
   if (searchParams.q) query = query.ilike('name', '%' + searchParams.q + '%')
 
-  // Фильтр по разделу: товары относятся к категориям с section = X
-  if (searchParams.section) {
-    const sectionCatIds = (categories || [])
-      .filter((c: any) => c.section === searchParams.section)
-      .map(c => c.id)
-    if (sectionCatIds.length > 0) {
-      query = query.in('category_id', sectionCatIds)
-    }
-  }
-
-  // Фильтр по конкретной категории
-  if (catSlug) {
-    const cat = categories?.find(c => c.slug === catSlug)
-    if (cat) query = query.eq('category_id', cat.id)
-  }
-
-  if (searchParams.new === 'true') query = query.eq('is_new', true)
-  if (searchParams.featured === 'true') query = query.eq('is_featured', true)
-
-  // Outlet — товары со старой ценой (т.е. со скидкой)
-  if (searchParams.sale === 'true') query = query.not('price_old', 'is', null)
-
-  // Фильтр по коллекции (FATALE, Cotton, MAVKA и т.д.)
-  if (searchParams.col) {
-    query = query.eq('collection', decodeURIComponent(searchParams.col))
-  }
+  // Раздел, категория, новинки, акции, коллекция, промо (1+1=3 и т.п.)
+  query = applyFilters(query, resolved)
 
   const { data: products } = await query
+
+  // В списке категорий слева показываем только те, где есть товары
+  const visible = await loadVisibleLite(supabase)
+  const nonEmptyCatIds = new Set(visible.map(p => p.category_id))
+  const shownCategories = (categories || []).filter(c => nonEmptyCatIds.has(c.id))
 
   // Карта "название цвета → hex" из product_colors (для правильных кружков в фильтре)
   const { data: colorRows } = await supabase
@@ -91,14 +76,17 @@ export default async function CatalogPage({ searchParams }: { searchParams: SP }
   // Заголовок страницы
   let title = 'Каталог'
   let subtitle = 'все модели'
-  if (searchParams.col) {
-    title = decodeURIComponent(searchParams.col)
+  if (resolved.promo) {
+    title = promoLabel(resolved.promo)
+    subtitle = 'акция'
+  } else if (resolved.col) {
+    title = resolved.col
     subtitle = 'коллекция'
-  } else if (catSlug) {
-    const cat = categories?.find(c => c.slug === catSlug)
+  } else if (resolved.catId) {
+    const cat = categories?.find(c => c.id === resolved.catId)
     if (cat) { title = cat.name; subtitle = 'все модели' }
-  } else if (searchParams.section && SECTION_NAMES[searchParams.section]) {
-    title = SECTION_NAMES[searchParams.section]
+  } else if (resolved.section && SECTION_NAMES[resolved.section]) {
+    title = SECTION_NAMES[resolved.section]
     subtitle = 'все модели'
   } else if (searchParams.sale === 'true') {
     title = 'Outlet'
@@ -113,8 +101,8 @@ export default async function CatalogPage({ searchParams }: { searchParams: SP }
       <Header />
       <CatalogClient
         products={products || []}
-        categories={categories || []}
-        activeCategory={catSlug}
+        categories={shownCategories}
+        activeCategory={resolved.catId ? catSlug : undefined}
         section={effectiveSection}
         collection={searchParams.col}
         title={title}

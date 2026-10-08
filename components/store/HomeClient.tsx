@@ -18,10 +18,10 @@ const CARD_BG = [
 
 const CATS = [
   { name: 'Бельё', sub: 'комплекты', key: 'lingerie-all', href: '/catalog?section=lingerie', bg: 'linear-gradient(165deg,#f3c8be 0%,#d99c8e 100%)' },
-  { name: 'Пижамы', sub: 'домашняя', key: 'pajamas', href: '/catalog?category=pajamas', bg: 'linear-gradient(165deg,#e8b4a6 0%,#c98e88 100%)', italic: true },
-  { name: 'Боди', sub: 'корсеты', key: 'bodysuit', href: '/catalog?category=bodysuit', bg: 'linear-gradient(165deg,#f5d4ca 0%,#e8b4a6 100%)' },
-  { name: 'Халаты', sub: 'уют', key: 'robes', href: '/catalog?category=robes', bg: 'linear-gradient(165deg,#ead0c4 0%,#d4a094 100%)', italic: true },
-  { name: 'Трусики', sub: 'базовые', key: 'panties-all', href: '/catalog?category=panties', bg: 'linear-gradient(165deg,#d9a594 0%,#b8786a 100%)' },
+  { name: 'Пижамы', sub: 'домашняя', key: 'pajamas', href: '/catalog?cat=pajamas', bg: 'linear-gradient(165deg,#e8b4a6 0%,#c98e88 100%)', italic: true },
+  { name: 'Боди', sub: 'корсеты', key: 'bodysuit', href: '/catalog?cat=bodysuit', bg: 'linear-gradient(165deg,#f5d4ca 0%,#e8b4a6 100%)' },
+  { name: 'Халаты', sub: 'уют', key: 'robes', href: '/catalog?cat=robes', bg: 'linear-gradient(165deg,#ead0c4 0%,#d4a094 100%)', italic: true },
+  { name: 'Трусики', sub: 'базовые', key: 'panties-all', href: '/catalog?cat=panties', bg: 'linear-gradient(165deg,#d9a594 0%,#b8786a 100%)' },
 ]
 
 const PROMISE = [
@@ -89,7 +89,8 @@ function ProductCard({ p, idx, onQuick }: { p: Product; idx: number; onQuick: ()
   )
 }
 
-export default function HomeClient({ featured, newProducts, catImages = {} }: { featured: Product[]; newProducts: Product[]; catImages?: Record<string, string> }) {
+export default function HomeClient({ featured, newProducts, catImages = {}, visibleTiles = null }: { featured: Product[]; newProducts: Product[]; catImages?: Record<string, string>; visibleTiles?: string[] | null }) {
+  const cats = visibleTiles ? CATS.filter(c => visibleTiles.includes(c.key)) : CATS
   const [quickProduct, setQuickProduct] = useState<Product | null>(null)
   const [cartOpen, setCartOpen] = useState(false)
 
@@ -115,7 +116,7 @@ export default function HomeClient({ featured, newProducts, catImages = {} }: { 
                     В коллекцию
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                   </Link>
-                  <span className="hero-tag" style={{ maxWidth: 260, textAlign: 'right', lineHeight: 1.6, opacity: 0.85 }}>
+                  <span className="hero-tag hero-note" style={{ maxWidth: 260, textAlign: 'right', lineHeight: 1.6, opacity: 0.85 }}>
                     Капсула из 48 силуэтов.<br />Натуральные ткани, мягкие посадки.
                   </span>
                 </div>
@@ -154,13 +155,14 @@ export default function HomeClient({ featured, newProducts, catImages = {} }: { 
       </div>
 
       {/* ===== КАТЕГОРИИ ===== */}
+      {cats.length > 0 && (
       <section>
         <div className="section-head">
           <h2>Категории, <em>выбери своё</em></h2>
-          <span className="section-meta">5 категорий ✿ 48 моделей</span>
+          <span className="section-meta">{cats.length} {cats.length === 1 ? 'категория' : cats.length < 5 ? 'категории' : 'категорий'}</span>
         </div>
         <div className="cats">
-          {CATS.map((cat, i) => (
+          {cats.map((cat, i) => (
             <Link key={cat.key} href={cat.href} style={{ textDecoration: 'none' }}>
               <div className="cat" style={{ background: catImages[cat.key] ? '#f6ede8' : cat.bg }}>
                 {catImages[cat.key] ? (
@@ -186,6 +188,7 @@ export default function HomeClient({ featured, newProducts, catImages = {} }: { 
           ))}
         </div>
       </section>
+      )}
 
       {/* ===== БЕСТСЕЛЛЕРЫ ===== */}
       {featured.length > 0 && (
@@ -227,14 +230,14 @@ export default function HomeClient({ featured, newProducts, catImages = {} }: { 
             Читать историю <ArrowUR />
           </Link>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, height: 560 }}>
+        <div className="lookbook">
           {/* Большая карточка слева */}
-          <div style={{ borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#d4a094,#8a5448)', position: 'relative', cursor: 'pointer' }}
+          <div className="lookbook-main" style={{ borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#d4a094,#8a5448)', position: 'relative', cursor: 'pointer' }}
             onClick={() => window.location.href = '/about'}>
             <div className="ph"><div className="ph-label">[ brand story · annabelle arto ]</div></div>
-            <div style={{ position: 'absolute', inset: 0, padding: 36, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', color: 'var(--cream)' }}>
+            <div className="lookbook-main-text" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', color: 'var(--cream)' }}>
               <span style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.8, marginBottom: 12 }}>— Манифест</span>
-              <h2 style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontSize: 48, lineHeight: 1, marginBottom: 16 }}>
+              <h2 style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontSize: 'clamp(34px,8vw,48px)', lineHeight: 1, marginBottom: 16 }}>
                 Annabelle Arto —<br /><em style={{ fontStyle: 'italic' }}>это про тебя</em>
               </h2>
               <p style={{ fontSize: 14, opacity: 0.8, lineHeight: 1.6, maxWidth: 360, marginBottom: 24 }}>
@@ -247,7 +250,7 @@ export default function HomeClient({ featured, newProducts, catImages = {} }: { 
           </div>
 
           {/* Правая колонка 2×2 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 14 }}>
+          <div className="lookbook-grid">
             {[
               { bg: 'linear-gradient(165deg,#f5d4ca,#d4a094)', label: 'Утро', num: '01' },
               { bg: 'linear-gradient(165deg,#e8b4a6,#c98e88)', label: 'Шёлк', num: '02' },
@@ -286,8 +289,8 @@ export default function HomeClient({ featured, newProducts, catImages = {} }: { 
 
       {/* ===== EDITORIAL ===== */}
       <section>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, alignItems: 'stretch' }}>
-          <div style={{ borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#d4a094,#8a5448)', position: 'relative', aspectRatio: '4/5' }}>
+        <div className="editorial">
+          <div className="editorial-img" style={{ borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#d4a094,#8a5448)', position: 'relative', aspectRatio: '4/5' }}>
             <div className="ph"><div className="ph-label">[ campaign · brand story ]</div></div>
           </div>
           <div style={{ padding: '32px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 24 }}>

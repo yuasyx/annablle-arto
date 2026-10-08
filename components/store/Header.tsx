@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import CartDrawer from './CartDrawer'
 import BrandLogo from './BrandLogo'
 import { MENU, MenuItem } from './menuData'
+import { useMenuAvailability, filterMenu } from '@/lib/useMenuAvailability'
 
 export default function Header() {
   const router = useRouter()
@@ -19,6 +20,9 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mExpanded, setMExpanded] = useState<number | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Пустые категории и акции не показываем — они появятся сами, когда в них будут товары
+  const available = useMenuAvailability()
+  const menu = filterMenu(MENU, available)
 
   useEffect(() => setMounted(true), [])
 
@@ -55,7 +59,7 @@ export default function Header() {
             </svg>
           </button>
           <nav className="mega-nav" onMouseLeave={scheduleClose}>
-            {MENU.map((item, i) => (
+            {menu.map((item, i) => (
               <MegaItem
                 key={item.label}
                 item={item}
@@ -110,7 +114,7 @@ export default function Header() {
               <button className="mdrawer-close" onClick={closeMobile} aria-label="Закрыть" type="button">×</button>
             </div>
             <nav className="mdrawer-nav">
-              {MENU.map((item, i) => {
+              {menu.map((item, i) => {
                 if (item.href && !item.columns) {
                   return (
                     <Link key={item.label} href={item.href} className="mdrawer-link" onClick={closeMobile}>

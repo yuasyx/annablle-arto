@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@supabase/supabase-js'
+import { PROMOS, promoLabel } from '@/lib/promos'
 
 let _sb: ReturnType<typeof createClient> | null = null
 function getSupabaseClient() {
@@ -26,6 +27,7 @@ type Product = {
   is_new: boolean
   is_featured: boolean
   is_hidden: boolean
+  promos?: string[] | null
   images: string[]
   created_at: string
   categories?: { name: string; slug: string } | null
@@ -121,10 +123,11 @@ export default function AdminPage() {
   const [form, setForm] = useState<{
     name: string; description: string; price: string; price_old: string;
     category_id: string; is_new: boolean; is_featured: boolean; in_stock: boolean; is_hidden: boolean;
+    promos: string[];
     colors: { name: string; hex: string; images: string; sizes: string }[];
   }>({
     name: '', description: '', price: '', price_old: '',
-    category_id: '', is_new: false, is_featured: false, in_stock: true, is_hidden: false,
+    category_id: '', is_new: false, is_featured: false, in_stock: true, is_hidden: false, promos: [],
     colors: [{ name: 'Основной', hex: '#3a2828', images: '', sizes: 'XS,S,M,L,XL' }],
   })
   const [settings, setSettings] = useState<Record<string, string>>({})
@@ -212,7 +215,7 @@ export default function AdminPage() {
     setEditProduct(null)
     setForm({
       name: '', description: '', price: '', price_old: '',
-      category_id: categories[0]?.id || '', is_new: false, is_featured: false, in_stock: true, is_hidden: false,
+      category_id: categories[0]?.id || '', is_new: false, is_featured: false, in_stock: true, is_hidden: false, promos: [],
       colors: [{ name: 'Основной', hex: '#3a2828', images: '', sizes: 'XS,S,M,L,XL' }],
     })
     setShowForm(true)
@@ -255,6 +258,7 @@ export default function AdminPage() {
       price_old: p.price_old ? String(p.price_old) : '',
       category_id: (p.categories as any)?.id || (p as any).category_id || '',
       is_new: p.is_new, is_featured: p.is_featured, in_stock: p.in_stock, is_hidden: p.is_hidden,
+      promos: p.promos || [],
       colors,
     })
     setShowForm(true)
@@ -354,7 +358,7 @@ export default function AdminPage() {
     // Фото товара (для превью каталога) = фото первого цвета
     const mainImages = colors[0].images
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       name: form.name,
       slug: editProduct?.slug || slugify(form.name) + '-' + Date.now(),
       description: form.description,
@@ -367,6 +371,9 @@ export default function AdminPage() {
       is_hidden: form.is_hidden,
       images: mainImages,
     }
+    // Акции (1+1=3 и т.п.). Сохраняем, только если в базе уже есть колонка promos —
+    // иначе сохранение товара упало бы до выполнения SQL-миграции.
+    if (products.some(p => 'promos' in p)) payload.promos = form.promos
 
     // ID товара (создаём или обновляем)
     let productId: string
@@ -577,6 +584,7 @@ export default function AdminPage() {
             ? products.filter(p =>
                 p.name.toLowerCase().includes(q) ||
                 p.slug.toLowerCase().includes(q) ||
+                (p.promos || []).some(k => promoLabel(k).toLowerCase().includes(q)) ||
                 ((p.categories as any)?.name || '').toLowerCase().includes(q)
               )
             : products
@@ -751,6 +759,22 @@ export default function AdminPage() {
                       </label>
                     ))}
                   </div>
+                  <div style={{ marginBottom: 24 }}>
+                    <div style={S.label}>Акции</div>
+                    {products.length > 0 && !products.some(p => 'promos' in p) ? (
+                      <p style={{ fontSize: 12, color: '#991b1b' }}>Чтобы отмечать акции, выполните в Supabase SQL из файла supabase-promos.sql</p>
+                    ) : (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px' }}>
+                        {PROMOS.map(pr => (
+                          <label key={pr.key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+                            <input type="checkbox" checked={form.promos.includes(pr.key)}
+                              onChange={e => setForm(f => ({ ...f, promos: e.target.checked ? [...f.promos, pr.key] : f.promos.filter(k => k !== pr.key) }))} />
+                            {pr.label}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <div style={{ display: 'flex', gap: 12 }}>
                     <button type="submit" style={{ ...S.btn, ...S.btnDark }}>
                       {editProduct ? 'Сохранить' : 'Создать товар'}
@@ -779,6 +803,7 @@ export default function AdminPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18 }}>{p.name}</span>
                     {p.is_new && <span style={{ fontSize: 10, background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: 999 }}>Новинка</span>}
+                    {(p.promos || []).map(k => <span key={k} style={{ fontSize: 10, background: '#fce7f3', color: '#9d174d', padding: '2px 8px', borderRadius: 999 }}>{promoLabel(k)}</span>)}
                     {!p.in_stock && <span style={{ fontSize: 10, background: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: 999 }}>Нет в наличии</span>}
                   </div>
                   <span style={{ fontSize: 13, opacity: 0.5 }}>{(p.categories as any)?.name}</span>

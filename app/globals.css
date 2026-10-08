@@ -421,3 +421,40 @@ body { overflow-x: clip; max-width: 100%; }
 
 
 
+
+/* === Главная: лукбук и editorial (раньше были инлайн-стили без мобильной версии) === */
+.lookbook{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:560px;}
+.lookbook-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;}
+.lookbook-main-text{padding:36px;}
+.editorial{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;}
+
+/* === Мобильная версия: баннеры на главной и футер === */
+@media (max-width: 900px){
+  /* Две карточки под главным баннером: раньше схлопывались в узкие полоски */
+  .hero-side{grid-template-columns:1fr 1fr;grid-template-rows:none;}
+  .hero-card{aspect-ratio:3/4;min-height:0;}
+  .hero-overlay{padding:22px;}
+  .lookbook{grid-template-columns:1fr;height:auto;}
+  .lookbook-main{aspect-ratio:4/5;}
+  .lookbook-grid{aspect-ratio:1/1;}
+  .editorial{grid-template-columns:1fr;}
+  .editorial-img{display:none;}
+}
+@media (max-width: 640px){
+  .hero-img{aspect-ratio:auto;min-height:440px;}
+  .hero-meta{flex-direction:column;gap:6px;}
+  .hero-note{display:none;}
+  .hero-card-mini{padding:16px;}
+  .hero-card-mini h3{font-size:24px;}
+  .hero-card-mini .hero-tag{font-size:9px;letter-spacing:0.1em;}
+  .hero-card-mini .hero-cta{padding:9px 14px !important;font-size:11px !important;margin-top:10px !important;}
+  .lookbook-main-text{padding:24px;}
+  .section-head{flex-wrap:wrap;gap:12px;}
+  footer{padding:48px 18px 24px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px 18px;}
+  .footer-grid>div:first-child{grid-column:1/-1;}
+  .footer-grid h3{font-size:40px;}
+  .subscribe{max-width:100%;}
+  .subscribe input{min-width:0;flex:1;}
+  .footer-bottom{flex-direction:column;gap:8px;}
+}

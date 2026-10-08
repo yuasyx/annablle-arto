@@ -1,6 +1,18 @@
+'use client'
 import Link from 'next/link'
+import { useMenuAvailability, isAvailable } from '@/lib/useMenuAvailability'
+
+// Ссылки «Каталог» в футере. Пустые категории не показываются.
+const CATALOG_LINKS = [
+  ['Бельё', '/catalog?section=lingerie'],
+  ['Пижамы', '/catalog?cat=pajamas'],
+  ['Боди', '/catalog?cat=bodysuit'],
+  ['Халаты', '/catalog?cat=robes'],
+  ['Новинки', '/catalog?new=true'],
+]
 
 export default function Footer() {
+  const available = useMenuAvailability()
   return (
     <footer>
       <div className="footer-grid">
@@ -17,7 +29,7 @@ export default function Footer() {
         <div>
           <h6>Каталог</h6>
           <ul>
-            {[['Комплекты','/catalog?category=komplekty'],['Пижамы','/catalog?category=pijamy'],['Боди','/catalog?category=body'],['Халаты','/catalog?category=halaty'],['Новинки','/catalog?new=true']].map(([l,h]) => (
+            {CATALOG_LINKS.filter(([, h]) => isAvailable(available, h)).map(([l,h]) => (
               <li key={h}><Link href={h}>{l}</Link></li>
             ))}
           </ul>
