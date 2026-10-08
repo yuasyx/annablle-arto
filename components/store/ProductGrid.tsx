@@ -5,6 +5,7 @@ import { Product } from '@/lib/supabase'
 import { formatPrice, optimizeImage} from '@/lib/utils'
 import { useCart } from '@/lib/cart'
 import { useState } from 'react'
+import { useT } from '@/lib/i18n/client'
 
 const CARD_GRADIENTS = [
   'linear-gradient(165deg,#f3c8be,#d99c8e)',
@@ -22,6 +23,7 @@ const CARD_HOVER = [
 ]
 
 function ProductCard({ product, idx }: { product: Product; idx: number }) {
+  const t = useT()
   const addItem = useCart(s => s.addItem)
   const [added, setAdded] = useState(false)
   const sizes = [...new Set(product.product_variants?.map(v => v.size) || [])]
@@ -48,12 +50,12 @@ function ProductCard({ product, idx }: { product: Product; idx: number }) {
           </>
         )}
         {(product.is_new || (product.price_old && !product.is_new)) && (
-          <span className="card-tag">{product.is_new ? 'Новинка' : `−${Math.round((1 - product.price / product.price_old!) * 100)}%`}</span>
+          <span className="card-tag">{product.is_new ? t('Новинка') : `−${Math.round((1 - product.price / product.price_old!) * 100)}%`}</span>
         )}
         {sizes.length > 0 && (
           <div className="card-quick">
             <button className="card-quick-btn" onClick={handleQuickAdd}>
-              {added ? '✓ Добавлено' : 'Быстро в корзину'}
+              {added ? t('✓ Добавлено') : t('Быстро в корзину')}
             </button>
           </div>
         )}
@@ -62,7 +64,7 @@ function ProductCard({ product, idx }: { product: Product; idx: number }) {
         <div>
           <h4>{product.name}</h4>
           <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,textTransform:'uppercase',letterSpacing:'0.06em',opacity:0.6,marginTop:2}}>
-            {(product.categories as any)?.name || ''}
+            {t((product.categories as any)?.name || '')}
           </div>
         </div>
         <div className="card-price">
@@ -80,12 +82,13 @@ function ProductCard({ product, idx }: { product: Product; idx: number }) {
 }
 
 export default function ProductGrid({ products }: { products: Product[] }) {
+  const t = useT()
   if (!products || products.length === 0) {
     return (
       <div style={{textAlign:'center',padding:'80px 20px',color:'var(--ink-soft)'}}>
         <div style={{fontSize:40,opacity:0.3,marginBottom:12}}>✿</div>
-        <p style={{fontFamily:'Cormorant Garamond,serif',fontSize:24,fontStyle:'italic',fontWeight:300}}>Товары не найдены</p>
-        <p style={{fontSize:13,marginTop:8,opacity:0.6}}>Попробуйте изменить фильтры</p>
+        <p style={{fontFamily:'Cormorant Garamond,serif',fontSize:24,fontStyle:'italic',fontWeight:300}}>{t('Товары не найдены')}</p>
+        <p style={{fontSize:13,marginTop:8,opacity:0.6}}>{t('Попробуйте изменить фильтры')}</p>
       </div>
     )
   }

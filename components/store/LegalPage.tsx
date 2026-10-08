@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Header from '@/components/store/Header'
 import Footer from '@/components/store/Footer'
+import { getLang, getT } from '@/lib/i18n/server'
 
 const css = `
 .legal-body{max-width:820px;margin:0 auto;padding:0 20px 90px;font-size:15px;line-height:1.7;color:var(--ink);}
@@ -25,6 +26,8 @@ export default function LegalPage({
   updated?: string
   children: ReactNode
 }) {
+  const t = getT()
+  const lang = getLang()
   return (
     <main>
       <style dangerouslySetInnerHTML={{ __html: css }} />
@@ -32,13 +35,16 @@ export default function LegalPage({
 
       <div className="catalog-head" style={{ maxWidth: 820, margin: '0 auto', padding: '40px 20px 24px' }}>
         <div className="crumbs" style={{ marginBottom: 18 }}>
-          <a href="/">Главная</a> / {typeof title === 'string' ? title : 'Информация'}
+          <a href="/">{t('Главная')}</a> / {typeof title === 'string' ? title : 'Информация'}
         </div>
         <h1 style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontStyle: 'italic', fontSize: 'clamp(34px, 5vw, 52px)', lineHeight: 1.05, marginBottom: intro ? 14 : 8 }}>
           {title}
         </h1>
         {intro ? (
           <p style={{ fontSize: 14, color: 'var(--ink-soft)', maxWidth: 620, lineHeight: 1.6 }}>{intro}</p>
+        ) : null}
+        {lang !== 'ru' ? (
+          <p style={{ fontSize: 12, color: 'var(--rose-deep)', marginTop: 10 }}>{t('Раздел на русском языке')}</p>
         ) : null}
         {updated ? (
           <p style={{ fontSize: 12, color: 'var(--ink-soft)', opacity: 0.7, marginTop: 10 }}>Обновлено: {updated}</p>

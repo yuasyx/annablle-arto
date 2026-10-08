@@ -7,6 +7,7 @@ import { formatPrice, optimizeImage} from '@/lib/utils'
 import { useCart } from '@/lib/cart'
 import QuickView from './QuickView'
 import CartDrawer from './CartDrawer'
+import { useT, useLang } from '@/lib/i18n/client'
 
 const CARD_BG = [
   'linear-gradient(165deg,#f3c8be,#d99c8e)',
@@ -25,7 +26,7 @@ const CATS = [
 ]
 
 const PROMISE = [
-  { icon: '🚚', title: 'Бесплатная доставка', sub: 'от 15 000 ₸' },
+  { icon: '🚚', title: 'Бесплатная доставка', sub: 'по Казахстану от 15 000 ₸' },
   { icon: '↩️', title: 'Лёгкий обмен', sub: '14 рабочих дней' },
   { icon: '💳', title: 'Оплата картой', sub: 'Visa · Mastercard' },
   { icon: '✦', title: 'Размеры XS–3XL', sub: 'для всех' },
@@ -36,6 +37,7 @@ function ArrowUR() {
 }
 
 function ProductCard({ p, idx, onQuick }: { p: Product; idx: number; onQuick: () => void }) {
+  const t = useT()
   const { addItem } = useCart()
   const [hovered, setHovered] = useState(false)
   const gi = idx % 5
@@ -60,17 +62,17 @@ function ProductCard({ p, idx, onQuick }: { p: Product; idx: number; onQuick: ()
             <div className="card-img-hover" style={{ background: 'linear-gradient(135deg,#d4a094,#b8786a)' }} />
           </>
         )}
-        {p.is_new && <span className="card-tag">Новинка</span>}
+        {p.is_new && <span className="card-tag">{t('Новинка')}</span>}
         {p.price_old && !p.is_new && <span className="card-tag">−{Math.round((1 - p.price / p.price_old) * 100)}%</span>}
         <div className="card-quick">
-          <button className="card-quick-btn" onClick={e => { e.stopPropagation(); onQuick() }}>Быстрый просмотр</button>
+          <button className="card-quick-btn" onClick={e => { e.stopPropagation(); onQuick() }}>{t('Быстрый просмотр')}</button>
         </div>
       </div>
       <div className="card-info">
         <div>
           <h4>{p.name}</h4>
           <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.6, marginTop: 2 }}>
-            {(p.categories as any)?.name || ''}
+            {t((p.categories as any)?.name || '')}
           </div>
         </div>
         <div className="card-price">
@@ -91,6 +93,7 @@ function ProductCard({ p, idx, onQuick }: { p: Product; idx: number; onQuick: ()
 
 export default function HomeClient({ featured, newProducts, catImages = {}, visibleTiles = null }: { featured: Product[]; newProducts: Product[]; catImages?: Record<string, string>; visibleTiles?: string[] | null }) {
   const cats = visibleTiles ? CATS.filter(c => visibleTiles.includes(c.key)) : CATS
+  const { lang, t } = useLang()
   const [quickProduct, setQuickProduct] = useState<Product | null>(null)
   const [cartOpen, setCartOpen] = useState(false)
 
@@ -101,23 +104,22 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
         <div className="hero-grid">
           {/* Главная большая карточка */}
           <div className="hero-img">
-            <div className="ph"><div className="ph-label">[ campaign · коллекция 2025 ]</div></div>
+            <div className="ph"><div className="ph-label">[ campaign ]</div></div>
             <div className="hero-overlay">
               <div className="hero-meta">
-                <span className="hero-tag">Annabelle Arto ✿ Капсула 01 — 2025</span>
-                <span className="hero-tag">N°01 / 48</span>
+                <span className="hero-tag">POD PLATIEM ✿ KZ · KG · UZ</span>
               </div>
               <div>
                 <h1 className="hero-title">
-                  Мягкие <em>вещи,</em><br />нежные <em>намерения</em>
+                  {t('Мягкие')} <em>{t('вещи,')}</em><br />{t('нежные')} <em>{t('намерения')}</em>
                 </h1>
                 <div className="hero-bottom">
                   <Link href="/catalog" className="hero-cta">
-                    В коллекцию
+                    {t('В коллекцию')}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                   </Link>
                   <span className="hero-tag hero-note" style={{ maxWidth: 260, textAlign: 'right', lineHeight: 1.6, opacity: 0.85 }}>
-                    Капсула из 48 силуэтов.<br />Натуральные ткани, мягкие посадки.
+                    {t('Доставка в Казахстан,')}<br />{t('Кыргызстан и Узбекистан.')}
                   </span>
                 </div>
               </div>
@@ -131,21 +133,21 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
               <div className="hero-card-mini">
                 <span className="hero-tag" style={{ color: 'rgba(255,247,243,0.7)' }}>Editorial 01</span>
                 <div>
-                  <h3>Сделано<br /><em>для тебя</em><br />каждый день</h3>
+                  <h3>{t('Сделано')}<br /><em>{t('для тебя')}</em><br />{t('каждый день')}</h3>
                   <Link href="/about" className="hero-cta" style={{ marginTop: 14, fontSize: 12, padding: '10px 18px' }}>
-                    О бренде <ArrowUR />
+                    {t('О бренде')} <ArrowUR />
                   </Link>
                 </div>
               </div>
             </div>
             <div className="hero-card" style={{ background: 'linear-gradient(160deg,#f0c8be 0%,#c98e88 100%)' }}>
-              <div className="ph"><div className="ph-label">[ new · сезон 2025 ]</div></div>
+              <div className="ph"><div className="ph-label">[ new ]</div></div>
               <div className="hero-card-mini">
-                <span className="hero-tag" style={{ color: 'rgba(58,40,40,0.6)' }}>Новинки ✿ 2025</span>
+                <span className="hero-tag" style={{ color: 'rgba(58,40,40,0.6)' }}>{t('Новинки')}</span>
                 <div>
-                  <h3 style={{ color: 'var(--ink)' }}>Новинки<br /><em>сезона</em></h3>
+                  <h3 style={{ color: 'var(--ink)' }}>{t('Новинки')}<br /><em>{t('сезона')}</em></h3>
                   <Link href="/catalog?new=true" className="hero-cta" style={{ marginTop: 14, fontSize: 12, padding: '10px 18px', background: 'var(--ink)', color: 'var(--cream)' }}>
-                    Смотреть <ArrowUR />
+                    {t('Смотреть')} <ArrowUR />
                   </Link>
                 </div>
               </div>
@@ -158,8 +160,8 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
       {cats.length > 0 && (
       <section>
         <div className="section-head">
-          <h2>Категории, <em>выбери своё</em></h2>
-          <span className="section-meta">{cats.length} {cats.length === 1 ? 'категория' : cats.length < 5 ? 'категории' : 'категорий'}</span>
+          <h2>{t('Категории,')} <em>{t('выбери своё')}</em></h2>
+          <span className="section-meta">{lang === 'ru' ? `${cats.length} ${cats.length === 1 ? 'категория' : cats.length < 5 ? 'категории' : 'категорий'}` : t('{n} категорий', { n: cats.length })}</span>
         </div>
         <div className="cats">
           {cats.map((cat, i) => (
@@ -169,7 +171,7 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
                   <>
                     <img
                       src={optimizeImage(catImages[cat.key], {width:1000, quality:90})}
-                      alt={cat.name}
+                      alt={t(cat.name)}
                       loading="lazy"
                       decoding="async"
                       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
@@ -180,7 +182,7 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
                   <div className="ph"><div className="ph-label">[ {cat.sub} ]</div></div>
                 )}
                 <div className="cat-label">
-                  <h3>{cat.italic ? <em>{cat.name}</em> : cat.name}</h3>
+                  <h3>{cat.italic ? <em>{t(cat.name)}</em> : t(cat.name)}</h3>
                   <div className="cat-arrow"><ArrowUR /></div>
                 </div>
               </div>
@@ -194,8 +196,8 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
       {featured.length > 0 && (
         <section>
           <div className="section-head">
-            <h2>Бестселлеры, <em>нежно любимы</em></h2>
-            <span className="section-meta">Хиты сезона</span>
+            <h2>{t('Бестселлеры,')} <em>{t('нежно любимы')}</em></h2>
+            <span className="section-meta">{t('Хиты сезона')}</span>
           </div>
           <div className="product-grid">
             {featured.map((p, i) => (
@@ -204,7 +206,7 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
           </div>
           <div style={{ textAlign: 'center', marginTop: 48 }}>
             <Link href="/catalog?featured=true" className="btn btn-ghost">
-              Смотреть все хиты
+              {t('Смотреть все хиты')}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </Link>
           </div>
@@ -216,8 +218,8 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
         {PROMISE.map(p => (
           <div key={p.title}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>{p.icon}</div>
-            <h5>{p.title}</h5>
-            <p>{p.sub}</p>
+            <h5>{t(p.title)}</h5>
+            <p>{t(p.sub)}</p>
           </div>
         ))}
       </div>
@@ -225,26 +227,26 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
       {/* ===== ЛУКБУК ПРЕВЬЮ ===== */}
       <section>
         <div className="section-head">
-          <h2>О бренде — <em>Annabelle Arto</em></h2>
+          <h2>{t('О бренде —')} <em>POD PLATIEM</em></h2>
           <Link href="/about" className="btn btn-ghost" style={{ fontSize: 13, padding: '10px 20px' }}>
-            Читать историю <ArrowUR />
+            {t('Читать историю')} <ArrowUR />
           </Link>
         </div>
         <div className="lookbook">
           {/* Большая карточка слева */}
           <div className="lookbook-main" style={{ borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#d4a094,#8a5448)', position: 'relative', cursor: 'pointer' }}
             onClick={() => window.location.href = '/about'}>
-            <div className="ph"><div className="ph-label">[ brand story · annabelle arto ]</div></div>
+            <div className="ph"><div className="ph-label">[ brand story ]</div></div>
             <div className="lookbook-main-text" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', color: 'var(--cream)' }}>
-              <span style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.8, marginBottom: 12 }}>— Манифест</span>
+              <span style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.8, marginBottom: 12 }}>{t('— Манифест')}</span>
               <h2 style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontSize: 'clamp(34px,8vw,48px)', lineHeight: 1, marginBottom: 16 }}>
-                Annabelle Arto —<br /><em style={{ fontStyle: 'italic' }}>это про тебя</em>
+                POD PLATIEM —<br /><em style={{ fontStyle: 'italic' }}>{t('это про тебя')}</em>
               </h2>
               <p style={{ fontSize: 14, opacity: 0.8, lineHeight: 1.6, maxWidth: 360, marginBottom: 24 }}>
-                Бельё, в котором не хочется снимать. Свободные посадки, мягкие посадки, ткани которые ведут себя по-человечески.
+                {t('Бельё, в котором не хочется снимать. Свободные посадки, мягкие посадки, ткани которые ведут себя по-человечески.')}
               </p>
               <Link href="/about" className="hero-cta" style={{ width: 'fit-content' }}>
-                О нас <ArrowUR />
+                {t('О нас')} <ArrowUR />
               </Link>
             </div>
           </div>
@@ -261,7 +263,7 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
                 onClick={() => window.location.href = '/about'}>
                 <div className="ph"><div className="ph-label">[ frame {item.num} ]</div></div>
                 <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', color: 'var(--cream)' }}>
-                  <h4 style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontStyle: 'italic', fontSize: 22, lineHeight: 1 }}>{item.label}</h4>
+                  <h4 style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontStyle: 'italic', fontSize: 22, lineHeight: 1 }}>{t(item.label)}</h4>
                   <span style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 11, letterSpacing: '0.14em', opacity: 0.8 }}>N°{item.num}/04</span>
                 </div>
               </div>
@@ -274,9 +276,9 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
       {newProducts.length > 0 && (
         <section>
           <div className="section-head">
-            <h2>Новинки, <em>свежее</em></h2>
+            <h2>{t('Новинки,')} <em>{t('свежее')}</em></h2>
             <Link href="/catalog?new=true" className="btn btn-ghost" style={{ fontSize: 13, padding: '10px 20px' }}>
-              Все новинки →
+              {t('Все новинки →')}
             </Link>
           </div>
           <div className="product-grid">
@@ -286,36 +288,6 @@ export default function HomeClient({ featured, newProducts, catImages = {}, visi
           </div>
         </section>
       )}
-
-      {/* ===== EDITORIAL ===== */}
-      <section>
-        <div className="editorial">
-          <div className="editorial-img" style={{ borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(135deg,#d4a094,#8a5448)', position: 'relative', aspectRatio: '4/5' }}>
-            <div className="ph"><div className="ph-label">[ campaign · brand story ]</div></div>
-          </div>
-          <div style={{ padding: '32px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 24 }}>
-            <span style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--rose-deep)' }}>— Манифест</span>
-            <h2 style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontSize: 'clamp(36px,4vw,56px)', lineHeight: 1, letterSpacing: '-0.01em' }}>
-              Annabelle Arto —<br /><em style={{ fontStyle: 'italic' }}>это про тебя</em>
-            </h2>
-            <p style={{ color: 'var(--ink-soft)', fontSize: 15, maxWidth: 460, lineHeight: 1.8 }}>
-              Бельё, в котором не хочется снимать. Свободные посадки, мягкие чашки без косточек, ткани, которые ведут себя по-человечески. Никаких обещаний про идеал — только удобство.
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24, borderTop: '1px solid rgba(58,40,40,0.12)', paddingTop: 24 }}>
-              {[['48', 'моделей XS–3XL'], ['30', 'дней возврат'], ['16', 'городов KZ']].map(([n, l]) => (
-                <div key={n}>
-                  <div style={{ fontFamily: 'Cormorant Garamond,serif', fontWeight: 300, fontSize: 36, lineHeight: 1 }}>{n}</div>
-                  <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>{l}</div>
-                </div>
-              ))}
-            </div>
-            <Link href="/about" className="btn" style={{ width: 'fit-content' }}>
-              О нас
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {quickProduct && <QuickView product={quickProduct} onClose={() => setQuickProduct(null)} onCartOpen={() => setCartOpen(true)} />}
       {cartOpen && <CartDrawer onClose={() => setCartOpen(false)} />}

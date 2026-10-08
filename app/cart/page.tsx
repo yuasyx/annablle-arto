@@ -5,9 +5,11 @@ import { useCart } from '@/lib/cart'
 import { formatPrice, optimizeImage } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useT } from '@/lib/i18n/client'
 
 export default function CartPage() {
   const { items, removeItem, updateQty, totalPrice, totalItems } = useCart()
+  const t = useT()
 
   if (items.length === 0) {
     return (
@@ -15,14 +17,14 @@ export default function CartPage() {
         <Header />
         <div className="max-w-2xl mx-auto px-8 py-24 text-center">
           <h1 className="font-cormorant text-4xl font-light mb-4">
-            Корзина <em className="italic text-amber-700">пуста</em>
+            {t('Корзина пуста')}
           </h1>
-          <p className="text-stone-400 text-sm mb-8">Добавьте товары из каталога</p>
+          <p className="text-stone-400 text-sm mb-8">{t('Добавьте товары из каталога')}</p>
           <Link
             href="/catalog"
             className="bg-stone-900 text-stone-50 px-8 py-3 text-[12px] tracking-widest uppercase hover:bg-stone-700 transition-colors"
           >
-            Перейти в каталог
+            {t('Перейти в каталог')}
           </Link>
         </div>
         <Footer />
@@ -35,7 +37,7 @@ export default function CartPage() {
       <Header />
       <div className="max-w-5xl mx-auto px-8 py-10">
         <h1 className="font-cormorant text-3xl font-light mb-8">
-          Корзина <em className="italic text-amber-700">({totalItems()} товара)</em>
+          {t('Корзина')} <em className="italic text-amber-700">({totalItems()})</em>
         </h1>
 
         <div className="grid grid-cols-3 gap-10">
@@ -61,7 +63,7 @@ export default function CartPage() {
                 <div className="flex-1">
                   <p className="text-[14px] font-medium text-stone-800 mb-1">{item.product.name}</p>
                   <p className="text-[11px] text-stone-400 mb-3">
-                    Размер: {item.size}
+                    {t('Размер: {s}', { s: item.size })}
                     {item.color && ` · ${item.color}`}
                   </p>
 
@@ -104,19 +106,19 @@ export default function CartPage() {
           {/* Итого */}
           <div className="col-span-1">
             <div className="bg-stone-50 p-6 sticky top-24">
-              <h2 className="font-cormorant text-xl font-light mb-6">Итого</h2>
+              <h2 className="font-cormorant text-xl font-light mb-6">{t('Итого')}</h2>
 
               <div className="flex flex-col gap-3 text-[13px] mb-6">
                 <div className="flex justify-between">
-                  <span className="text-stone-500">Товары ({totalItems()})</span>
+                  <span className="text-stone-500">{t('Товары ({n})', { n: totalItems() })}</span>
                   <span>{formatPrice(totalPrice())}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-stone-500">Доставка</span>
-                  <span className="text-stone-400">рассчитывается</span>
+                  <span className="text-stone-500">{t('Доставка')}</span>
+                  <span className="text-stone-400">{t('рассчитывается')}</span>
                 </div>
                 <div className="border-t border-stone-200 pt-3 flex justify-between font-medium">
-                  <span>Итого</span>
+                  <span>{t('Итого')}</span>
                   <span className="font-cormorant text-xl">{formatPrice(totalPrice())}</span>
                 </div>
               </div>
@@ -125,13 +127,13 @@ export default function CartPage() {
                 href="/checkout"
                 className="block w-full bg-stone-900 text-stone-50 py-4 text-center text-[12px] tracking-widest uppercase hover:bg-stone-700 transition-colors mb-3"
               >
-                Оформить заказ
+                {t('Оформить заказ')}
               </Link>
               <Link
                 href="/catalog"
                 className="block w-full border border-stone-200 text-stone-600 py-3 text-center text-[11px] tracking-widest uppercase hover:border-stone-400 transition-colors"
               >
-                Продолжить покупки
+                {t('Продолжить покупки')}
               </Link>
 
               {/* Платёжки */}

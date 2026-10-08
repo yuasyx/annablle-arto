@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Product } from '@/lib/supabase'
 import { formatPrice, optimizeImage} from '@/lib/utils'
 import { useCart } from '@/lib/cart'
+import { useT } from '@/lib/i18n/client'
 
 const CARD_BG = ['linear-gradient(165deg,#f3c8be,#d99c8e)','linear-gradient(165deg,#ead0c4,#d4a094)','linear-gradient(165deg,#f5d8d0,#d8a89c)']
 
@@ -64,6 +65,7 @@ export default function QuickView({ product: p, onClose, onCartOpen }: {
   product: Product; onClose: () => void; onCartOpen: () => void
 }) {
   const { addItem } = useCart()
+  const t = useT()
   const [size, setSize] = useState('')
   const [added, setAdded] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
@@ -71,7 +73,7 @@ export default function QuickView({ product: p, onClose, onCartOpen }: {
   const images = (p.images || []).filter(Boolean)
 
   function handleAdd() {
-    if (!size && sizes.length > 0) { alert('Выберите размер'); return }
+    if (!size && sizes.length > 0) { alert(t('Выберите размер')); return }
     addItem(p, size || 'M', null)
     setAdded(true)
     setTimeout(() => { setAdded(false); onClose(); onCartOpen() }, 1000)
@@ -109,7 +111,7 @@ export default function QuickView({ product: p, onClose, onCartOpen }: {
         {/* Инфо */}
         <div className="qv-info" style={{padding:36,display:'flex',flexDirection:'column',gap:16}}>
           <div>
-            <div className="pdp-cat">{(p.categories as any)?.name || ''}</div>
+            <div className="pdp-cat">{t((p.categories as any)?.name || '')}</div>
             <h2 style={{fontFamily:'Cormorant Garamond,serif',fontWeight:300,fontSize:36,lineHeight:1,marginBottom:8}}>{p.name}</h2>
             <div className="pdp-price">
               {p.price_old && <s>{formatPrice(p.price_old)}</s>}
@@ -122,7 +124,7 @@ export default function QuickView({ product: p, onClose, onCartOpen }: {
             <div>
               <p className="qv-desc">{p.description}</p>
               <a href={`/product/${p.slug}`} style={{display:'inline-block',marginTop:6,fontSize:13,color:'var(--rose-deep)',textDecoration:'underline',textUnderlineOffset:3}}>
-                Полное описание — на странице товара →
+                {t('Полное описание — на странице товара →')}
               </a>
             </div>
           )}
@@ -130,7 +132,7 @@ export default function QuickView({ product: p, onClose, onCartOpen }: {
           {sizes.length > 0 && (
             <div>
               <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,letterSpacing:'0.14em',textTransform:'uppercase',opacity:0.7,marginBottom:10}}>
-                Размер: {size || '—'}
+                {t('Размер: {s}', { s: size || '—' })}
               </div>
               <div className="size-row">
                 {sizes.map(s => (
@@ -142,7 +144,7 @@ export default function QuickView({ product: p, onClose, onCartOpen }: {
 
           <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,marginTop:'auto'}}>
             <button onClick={handleAdd} style={{padding:'16px 24px',borderRadius:999,background:'var(--ink)',color:'var(--cream)',border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:13,letterSpacing:'0.04em',transition:'all .3s'}}>
-              {added ? '✓ Добавлено!' : `В корзину · ${formatPrice(p.price)}`}
+              {added ? t('✓ Добавлено!') : t('В корзину · {p}', { p: formatPrice(p.price) })}
             </button>
             <a href={`/product/${p.slug}`} style={{width:52,height:52,borderRadius:999,border:'1px solid var(--ink)',display:'grid',placeItems:'center',textDecoration:'none',color:'var(--ink)'}}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M7 17 17 7M9 7h8v8"/></svg>
@@ -151,11 +153,11 @@ export default function QuickView({ product: p, onClose, onCartOpen }: {
 
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,borderTop:'1px solid var(--line)',paddingTop:16}}>
             {[
-              ['🚚','Доставка по KZ','2–5 дней'],
+              ['🚚','Доставка','KZ · KG · UZ'],
               isNonReturnable(p)
                 ? ['✔️','Гарантия качества','обмен при браке']
                 : ['↩️','Возврат','14 рабочих дней'],
-            ].map(([icon,title,sub]) => (
+            ].map(([icon,title,sub]) => [icon, t(title), t(sub)]).map(([icon,title,sub]) => (
               <div key={title} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
                 <span style={{fontSize:16}}>{icon}</span>
                 <div><div style={{fontSize:13,fontWeight:500,marginBottom:2}}>{title}</div><div style={{fontSize:12,color:'var(--ink-soft)'}}>{sub}</div></div>

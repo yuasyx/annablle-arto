@@ -1,5 +1,6 @@
 'use client'
 import { useEffect } from 'react'
+import { useT } from '@/lib/i18n/client'
 
 // Размерные таблицы по разделам
 type SizeTable = {
@@ -138,6 +139,7 @@ const SECTION_LABELS: Record<string, string> = {
 }
 
 export default function SizeGuideModal({ section, onClose }: { section: string | null; onClose: () => void }) {
+  const tr = useT()
   // Esc-закрытие
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
@@ -168,13 +170,13 @@ export default function SizeGuideModal({ section, onClose }: { section: string |
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',padding:'24px 28px 18px',borderBottom:'1px solid var(--line)'}}>
           <div>
             <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,letterSpacing:'0.14em',textTransform:'uppercase',opacity:0.55,marginBottom:6}}>
-              {sectionLabel} ✿ Размерная сетка
+              {tr(sectionLabel)} ✿ {tr('Размерная сетка')}
             </div>
             <h3 style={{fontFamily:'Cormorant Garamond,serif',fontWeight:300,fontStyle:'italic',fontSize:32,lineHeight:1.1,color:'var(--ink)'}}>
-              Таблица <em>размеров</em>
+              {tr('Таблица')} <em>{tr('размеров')}</em>
             </h3>
           </div>
-          <button onClick={onClose} aria-label="Закрыть" style={{background:'none',border:'none',cursor:'pointer',fontSize:28,color:'var(--ink)',opacity:0.5,padding:'4px 8px',lineHeight:1,transition:'opacity .2s'}}
+          <button onClick={onClose} aria-label={tr('Закрыть')} style={{background:'none',border:'none',cursor:'pointer',fontSize:28,color:'var(--ink)',opacity:0.5,padding:'4px 8px',lineHeight:1,transition:'opacity .2s'}}
             onMouseOver={e => (e.currentTarget.style.opacity = '1')}
             onMouseOut={e => (e.currentTarget.style.opacity = '0.5')}
           >×</button>
@@ -185,11 +187,11 @@ export default function SizeGuideModal({ section, onClose }: { section: string |
           {tables.map((t, idx) => (
             <div key={idx} style={{marginBottom: idx < tables.length - 1 ? 36 : 0}}>
               <h4 style={{fontFamily:'Cormorant Garamond,serif',fontStyle:'italic',fontWeight:300,fontSize:24,color:'var(--ink)',marginBottom:10}}>
-                {t.title}
+                {tr(t.title)}
               </h4>
               {t.intro && (
                 <p style={{fontSize:13,color:'var(--ink-soft)',marginBottom:14,lineHeight:1.55,maxWidth:640}}>
-                  {t.intro}
+                  {tr(t.intro)}
                 </p>
               )}
 
@@ -208,7 +210,7 @@ export default function SizeGuideModal({ section, onClose }: { section: string |
                           color:'var(--ink)',
                           fontWeight:500,
                           borderBottom:'1px solid var(--line)',
-                        }}>{h}</th>
+                        }}>{tr(h)}</th>
                       ))}
                     </tr>
                   </thead>
@@ -220,7 +222,7 @@ export default function SizeGuideModal({ section, onClose }: { section: string |
                             padding:'12px 14px',
                             color: ci === 0 ? 'var(--ink)' : 'var(--ink-soft)',
                             fontWeight: ci === 0 ? 500 : 400,
-                          }}>{cell}</td>
+                          }}>{tr(String(cell))}</td>
                         ))}
                       </tr>
                     ))}
@@ -230,7 +232,7 @@ export default function SizeGuideModal({ section, onClose }: { section: string |
 
               {t.note && (
                 <p style={{fontSize:12,color:'var(--ink-soft)',opacity:0.75,marginTop:10,fontStyle:'italic',maxWidth:640}}>
-                  ✿ {t.note}
+                  ✿ {tr(t.note)}
                 </p>
               )}
             </div>
@@ -238,7 +240,7 @@ export default function SizeGuideModal({ section, onClose }: { section: string |
 
           {/* Подсказка */}
           <div style={{marginTop:32,padding:'16px 18px',background:'rgba(255,247,243,0.5)',borderRadius:12,fontSize:12,color:'var(--ink-soft)',lineHeight:1.6}}>
-            <strong style={{color:'var(--ink)',fontWeight:500}}>Не получается определить размер?</strong> Свяжитесь с нами в WhatsApp или Instagram — поможем подобрать.
+            <strong style={{color:'var(--ink)',fontWeight:500}}>{tr('Не получается определить размер?')}</strong> {tr('Свяжитесь с нами в WhatsApp или Instagram — поможем подобрать.')}
           </div>
         </div>
       </div>

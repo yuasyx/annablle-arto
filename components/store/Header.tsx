@@ -7,6 +7,10 @@ import CartDrawer from './CartDrawer'
 import BrandLogo from './BrandLogo'
 import { MENU, MenuItem } from './menuData'
 import { useMenuAvailability, filterMenu } from '@/lib/useMenuAvailability'
+import { useLang } from '@/lib/i18n/client'
+import { LANGS } from '@/lib/i18n'
+
+const MARQUEE = ['Доставка в Казахстан, Кыргызстан и Узбекистан', 'Оплата картой Visa / Mastercard', 'Возврат 14 рабочих дней', 'Размеры XS – 3XL']
 
 export default function Header() {
   const router = useRouter()
@@ -23,6 +27,7 @@ export default function Header() {
   // Пустые категории и акции не показываем — они появятся сами, когда в них будут товары
   const available = useMenuAvailability()
   const menu = filterMenu(MENU, available)
+  const { lang, t, setLang } = useLang()
 
   useEffect(() => setMounted(true), [])
 
@@ -53,7 +58,7 @@ export default function Header() {
     <>
       <header className="nav">
         <div className="nav-left-wrap">
-          <button className="nav-burger" onClick={() => setMobileOpen(true)} aria-label="Открыть меню" type="button">
+          <button className="nav-burger" onClick={() => setMobileOpen(true)} aria-label={t('Открыть меню')} type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
             </svg>
@@ -75,17 +80,20 @@ export default function Header() {
         </Link>
 
         <div className="nav-right" onMouseEnter={() => setOpenIndex(null)}>
-          <input value={searchText} onChange={(e) => setSearchText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') doSearch(); if (e.key === 'Escape') setSearchOpen(false) }} placeholder="Поиск по названию или артикулу" autoFocus={searchOpen} style={{ width: searchOpen ? 190 : 0, opacity: searchOpen ? 1 : 0, padding: searchOpen ? '4px 8px' : '4px 0', marginRight: searchOpen ? 4 : 0, border: 'none', borderBottom: searchOpen ? '1px solid var(--ink, #333)' : '1px solid transparent', background: 'transparent', fontSize: 13, fontFamily: 'inherit', outline: 'none', transition: 'width .25s ease, opacity .25s ease', pointerEvents: searchOpen ? 'auto' : 'none' }} />
-        <button className="nav-icon" title="Поиск" type="button" onClick={() => { if (searchOpen && searchText.trim()) { doSearch() } else { setSearchOpen(o => !o) } }}>
+          <input value={searchText} onChange={(e) => setSearchText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') doSearch(); if (e.key === 'Escape') setSearchOpen(false) }} placeholder={t('Поиск по названию или артикулу')} autoFocus={searchOpen} style={{ width: searchOpen ? 190 : 0, opacity: searchOpen ? 1 : 0, padding: searchOpen ? '4px 8px' : '4px 0', marginRight: searchOpen ? 4 : 0, border: 'none', borderBottom: searchOpen ? '1px solid var(--ink, #333)' : '1px solid transparent', background: 'transparent', fontSize: 13, fontFamily: 'inherit', outline: 'none', transition: 'width .25s ease, opacity .25s ease', pointerEvents: searchOpen ? 'auto' : 'none' }} />
+        <button className="nav-icon" title={t('Поиск')} type="button" onClick={() => { if (searchOpen && searchText.trim()) { doSearch() } else { setSearchOpen(o => !o) } }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
             </svg>
           </button>
+          <select className="lang-select" value={lang} onChange={e => setLang(e.target.value as any)} aria-label={t('Язык')}>
+            {LANGS.map(l => <option key={l.code} value={l.code}>{l.short}</option>)}
+          </select>
           <button onClick={() => setCartOpen(true)} className="cart-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M5 8h14l-1 12H6L5 8z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" />
             </svg>
-            Корзина
+            {t('Корзина')}
             {mounted && totalItems > 0 && (
               <span style={{ background:'var(--rose)', color:'var(--ink)', fontSize:10, width:18, height:18, borderRadius:999, display:'grid', placeItems:'center', fontFamily:'JetBrains Mono,monospace', fontWeight:500 }}>
                 {totalItems}
@@ -97,9 +105,7 @@ export default function Header() {
 
       <div className="marquee" onMouseEnter={() => setOpenIndex(null)}>
         <div className="marquee-track">
-          {['Доставка по всему Казахстану','Оплата картой Visa / Mastercard','Возврат 14 рабочих дней','Размеры XS – 3XL','Новая коллекция 2025',
-            'Доставка по всему Казахстану','Оплата картой Visa / Mastercard','Возврат 14 рабочих дней','Размеры XS – 3XL','Новая коллекция 2025',
-          ].map((t,i) => <span key={i}>{t}</span>)}
+          {[...MARQUEE, ...MARQUEE].map((m, i) => <span key={i}>{t(m)}</span>)}
         </div>
       </div>
 
@@ -111,14 +117,14 @@ export default function Header() {
               <Link href="/" className="mdrawer-brand" onClick={closeMobile} aria-label="POD PLATIEM — на главную">
                 <BrandLogo />
               </Link>
-              <button className="mdrawer-close" onClick={closeMobile} aria-label="Закрыть" type="button">×</button>
+              <button className="mdrawer-close" onClick={closeMobile} aria-label={t('Закрыть')} type="button">×</button>
             </div>
             <nav className="mdrawer-nav">
               {menu.map((item, i) => {
                 if (item.href && !item.columns) {
                   return (
                     <Link key={item.label} href={item.href} className="mdrawer-link" onClick={closeMobile}>
-                      {item.label}
+                      {t(item.label)}
                     </Link>
                   )
                 }
@@ -126,22 +132,22 @@ export default function Header() {
                 return (
                   <div key={item.label} className="mdrawer-group">
                     <button className="mdrawer-grouphead" type="button" onClick={() => setMExpanded(expanded ? null : i)}>
-                      <span>{item.label}</span>
+                      <span>{t(item.label)}</span>
                       <span className={`mdrawer-chev ${expanded ? 'open' : ''}`}>›</span>
                     </button>
                     {expanded && (
                       <div className="mdrawer-sub">
                         {item.href && (
                           <Link href={item.href} className="mdrawer-sublink strong" onClick={closeMobile}>
-                            Все {item.label.toLowerCase()}
+                            {t('Все товары раздела')}
                           </Link>
                         )}
                         {item.columns?.map(col => (
                           <div key={col.title}>
-                            <div className="mdrawer-coltitle">{col.title}</div>
+                            <div className="mdrawer-coltitle">{t(col.title)}</div>
                             {col.items.map(it => (
                               <Link key={it.label} href={it.href} className="mdrawer-sublink" onClick={closeMobile}>
-                                {it.label}
+                                {t(it.label)}
                               </Link>
                             ))}
                           </div>
@@ -152,6 +158,13 @@ export default function Header() {
                 )
               })}
             </nav>
+            <div className="mdrawer-langs">
+              {LANGS.map(l => (
+                <button key={l.code} type="button" className={`mdrawer-lang ${lang === l.code ? 'on' : ''}`} onClick={() => setLang(l.code)}>
+                  {l.name}
+                </button>
+              ))}
+            </div>
           </aside>
         </div>
       )}
@@ -162,8 +175,9 @@ export default function Header() {
 }
 
 function MegaItem({ item, isOpen, onOpen }: { item: MenuItem; isOpen: boolean; onOpen: () => void }) {
+  const t = useLang().t
   if (item.href && !item.columns) {
-    return <Link href={item.href} className="mega-link">{item.label}</Link>
+    return <Link href={item.href} className="mega-link">{t(item.label)}</Link>
   }
 
   const colCount = item.columns?.length || 0
@@ -173,11 +187,11 @@ function MegaItem({ item, isOpen, onOpen }: { item: MenuItem; isOpen: boolean; o
     <div className="mega-wrap" onMouseEnter={onOpen}>
       {item.href ? (
         <Link href={item.href} className={`mega-link ${isOpen ? 'is-active' : ''}`}>
-          {item.label}
+          {t(item.label)}
         </Link>
       ) : (
         <button className={`mega-link ${isOpen ? 'is-active' : ''}`} type="button">
-          {item.label}
+          {t(item.label)}
         </button>
       )}
 
@@ -186,11 +200,11 @@ function MegaItem({ item, isOpen, onOpen }: { item: MenuItem; isOpen: boolean; o
           <div className="mega-panel-inner">
             {item.columns.map(col => (
               <div key={col.title} className="mega-col">
-                <div className="mega-col-title">{col.title}</div>
+                <div className="mega-col-title">{t(col.title)}</div>
                 <ul className="mega-col-list">
                   {col.items.map(it => (
                     <li key={it.label}>
-                      <Link href={it.href} className="mega-col-link">{it.label}</Link>
+                      <Link href={it.href} className="mega-col-link">{t(it.label)}</Link>
                     </li>
                   ))}
                 </ul>
