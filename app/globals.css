@@ -458,3 +458,12 @@ body { overflow-x: clip; max-width: 100%; }
   .subscribe input{min-width:0;flex:1;}
   .footer-bottom{flex-direction:column;gap:8px;}
 }
+
+/* === Карточка товара на телефоне: название и цена друг под другом === */
+@media (max-width: 640px){
+  .card-info{flex-direction:column;gap:6px;}
+  .card-info>div:first-child{width:100%;min-width:0;}
+  .card-info h4{font-size:15px;line-height:1.25;overflow-wrap:break-word;word-break:normal;}
+  .card-price{text-align:left;white-space:normal;font-size:13px;}
+  .card-price s{white-space:nowrap;}
+}
